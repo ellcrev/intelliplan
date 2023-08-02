@@ -4,7 +4,7 @@
 
 # Description
 
-A smart planner that helps you find your perfect Stanford schedule.
+Database, scripts, and application to help students quickly search through all Stanford Courses.
 
 ---
 
@@ -13,7 +13,7 @@ A smart planner that helps you find your perfect Stanford schedule.
 ### 1 - Clone the repository to a folder called "intelliplan".
 
 ```bash
-git clone https://github.com/StanfordCS194/win2023-team22.git intelliplan
+https://github.com/ellcrev/intelliplan.git
 ```
 
 ### 2 - Navigate into the folder and install package modules.
@@ -30,7 +30,7 @@ npm run init
 ```
 
 > 1. Downloads Meilisearch for Local Development
-> 2. Downloads and parses fresh set of data from Explore courses.
+> 2. Scrapes data from Explore Courses.
 
 ### 4 - Start developing.
 
@@ -100,13 +100,3 @@ Generate 10 keywords from the description above.
 (7) I have it so it works for individual courses, but not yet for all courses. This requires modifying the workerpool to handle requests to GPT.
 
 We can come up with more clever things for it to do later on, but at least its mostly set up.
-
-### Production Database
-
-IP: 35.197.117.130
-
-Checking if meilisearch is available via https:
-
-```
-curl -v https://35.197.117.130/health
-```
