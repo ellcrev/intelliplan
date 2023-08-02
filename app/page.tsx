@@ -1,95 +1,162 @@
-import Image from 'next/image'
-import styles from './page.module.css'
+"use client";
+import {
+  Box,
+  Divider,
+  Paper,
+  ToggleButton,
+  ToggleButtonGroup,
+  Typography,
+  useTheme,
+} from "@mui/material";
+import { mdiCalendarMonth, mdiListBoxOutline } from "@mdi/js";
+import Icon from "@mdi/react";
+import Logo from "components/Logo";
+import Search from "components/Search";
+import SearchFilters from "components/SearchFilters";
+import SearchResults from "components/SearchResults";
+import SearchResultsCalendar from "components/SearchResultsCalendar";
+import { NextPage } from "next";
+import { useState } from "react";
+import client from "lib/meilisearch";
+import { MeiliCourseDocument, Quarter } from "lib/meilisearch/types";
+import React from "react";
 
-export default function Home() {
+const HomePage: NextPage = () => {
+  const theme = useTheme();
+  const [searchResults, setSearchResults] = useState<
+    (MeiliCourseDocument & { id: string })[]
+  >([]);
+  const [searchVal, setSearchVal] = useState("");
+  const [termFilter, setTermFilter] = React.useState<Quarter>("SPR");
+  const [gerFilter, setGerFilter] = useState("WAYS");
+  const [resultsView, setResultsView] = useState("List");
+
+  const search = async (val: string) => {
+    const results = await client.index("courses").search(val);
+    //dedupe and add label for crosslisted courses
+    setSearchResults(results.hits as (MeiliCourseDocument & { id: string })[]);
+  };
   return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>app/page.tsx</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+    <Box
+      sx={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "flex-start",
+        width: "100%",
+        marginTop: "32px",
+        marginBottom: "32px",
+        minHeight: "calc(100vh - 72px)",
+      }}
+    >
+      <Paper
+        elevation={2}
+        sx={{
+          minHeight: "calc(100vh - 72px)",
+          flexDirection: "column",
+          display: "flex",
+          alignItems: "center",
+          padding: "32px 12px 48px 12px",
+          "@media only screen and (min-width: 450px)": {
+            padding: "32px 32px 48px 32px",
+          },
+          "@media only screen and (min-width: 900px)": {
+            width: "750px",
+          },
+        }}
+      >
+        <Box sx={{ marginBottom: "12px" }}>
+          <Logo />
+        </Box>
+        <Box
+          sx={{
+            width: "100%",
+            display: "flex",
+            alignItems: "center",
+            gap: 1,
+            my: 1,
+          }}
+        >
+          <Search
+            value={searchVal}
+            onValueChange={(newVal) => {
+              setSearchVal(newVal);
+              search(newVal);
+            }}
+          />
+          <SearchFilters
+            filters={{ termFilter, setTermFilter, gerFilter, setGerFilter }}
+          />
+        </Box>
+        <Divider sx={{ width: "100%" }} orientation="horizontal" />
+        <Box
+          sx={{
+            width: "100%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            my: 1,
+          }}
+        >
+          <Box sx={{ display: "flex", alignItems: "center", mr: 1 }}>
+            <Typography
+              sx={{
+                textAlign: "left",
+                alignSelf: "flex-start",
+                paddingLeft: "12px",
+                color: "#a0a0a0",
+                fontWeight: "bold",
+              }}
+            >
+              Results{" "}
+              {searchVal && searchResults.length ? (
+                <>
+                  - Showing{" "}
+                  <span
+                    style={{
+                      color: theme.palette.secondary.light,
+                      fontSize: "17px",
+                      margin: "0px 2px",
+                      filter: "drop-shadow(0px 0px 1px #c0c0c0)",
+                    }}
+                  >
+                    {searchResults.length}
+                  </span>{" "}
+                  matches
+                </>
+              ) : (
+                "- ..."
+              )}
+            </Typography>
+          </Box>
+          <ToggleButtonGroup
+            size="small"
+            exclusive
+            color="secondary"
+            onChange={(ev, val) => {
+              setResultsView(val);
+            }}
+            value={resultsView}
           >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
+            <ToggleButton value={"Calendar"} sx={{ borderColor: "#c0c0c0" }}>
+              <Icon path={mdiCalendarMonth} size={1}></Icon> Calendar
+            </ToggleButton>
+            <ToggleButton value={"List"} sx={{ borderColor: "#c0c0c0" }}>
+              <Icon path={mdiListBoxOutline} size={1}></Icon> List
+            </ToggleButton>
+          </ToggleButtonGroup>
+        </Box>
 
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
+        {resultsView == "Calendar" ? (
+          <SearchResultsCalendar
+            results={searchResults}
+            filters={{ termFilter }}
+          />
+        ) : (
+          <SearchResults results={searchResults} />
+        )}
+      </Paper>
+    </Box>
+  );
+};
 
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore the Next.js 13 playground.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
-  )
-}
+export default HomePage;

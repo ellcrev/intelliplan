@@ -33,3 +33,14 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# environment var
+.env
+
+# data
+data/parsed
+data/raw
+
+# meilisearch
+lib/meilisearch/.instance
+lib/meilisearch/meilisearch

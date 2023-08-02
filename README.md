@@ -1,34 +1,112 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# IntelliPlan
 
-## Getting Started
+<img src="./public/banner.svg" />
 
-First, run the development server:
+# Description
+
+A smart planner that helps you find your perfect Stanford schedule.
+
+---
+
+## Setting Up Dev Environment
+
+### 1 - Clone the repository to a folder called "intelliplan".
+
+```bash
+git clone https://github.com/StanfordCS194/win2023-team22.git intelliplan
+```
+
+### 2 - Navigate into the folder and install package modules.
+
+```bash
+cd intelliplan
+npm install
+```
+
+### 3 - Run the initial setup script.
+
+```bash
+npm run init
+```
+
+> 1. Downloads Meilisearch for Local Development
+> 2. Downloads and parses fresh set of data from Explore courses.
+
+### 4 - Start developing.
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+> Runs the next dev script (live website preview)
+> Runs the meilisearch local instance (live database preview)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Technology Overview
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+### 1. NextJS & React [(Docs)](https://nextjs.org/docs/routing/introduction)
 
-## Learn More
+- Used as the full-stack framework for serverless functions, website hosting, and javascript processing.
+- Chosen for popularity and well-defined documentation.
 
-To learn more about Next.js, take a look at the following resources:
+### 2. MaterialUI [(Docs)](https://mui.com/material-ui/getting-started/overview/)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- Accessible and open source react component library for rapidly prototyping UI.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+### 3. Meilisearch [(Docs)](https://docs.meilisearch.com/learn/getting_started/quick_start.html#search)
 
-## Deploy on Vercel
+- Used to deliver the quickest database queries possible.
+- Powered by LMDB, the world's fast read database.
+- Well-defined documentation and simple key-value storage model.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### 4. Typescript [(Docs)](https://www.typescriptlang.org/docs/handbook/typescript-in-5-minutes.html)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+- Compile-time Errors > Run-time Errors
+- Static, predictable types for every layer of abstraction (components, functions, data, etc.)
+
+## Backend Services
+
+1. [Vercel](https://vercel.com/docs) - Hosts Server Side Rendered Progressive Web App & Serverless Functions
+2. [Google Cloud Platform Compute Engine](https://cloud.google.com/compute) - Hosts Meilisearch Instance
+
+---
+
+### Additional notes: [Work In Progress]
+
+I have been experimenting with GPT and this course data list.
+Right now I have it so GPT can generate keywords from the course
+data.
+
+(1) Call `npm run gpt MATH51` (or any course code)
+
+(2) The CLI will prompt you for an OpenAI key.
+
+(3) Once you enter your OpenAI key, it is saved in the '.env'.
+
+(5) The request sytem uses templates. Since GPT can only input strings and output strings, we want to use a template that lets us create custom strings based on each individual course data. I.E.
+
+The template for the keyword generator is:
+
+```ts
+const template = (courseDescription) => `
+${courseDescription}
+Generate 10 keywords from the description above.
+`;
+```
+
+> Templates are stored in .scripts/gpt/templates.ts
+
+(6) So the CLI generates a template for each course and sends the populated string to GPT which processes it and send back a string, which the CLI parses and saves to JSON in data/gpt.
+
+(7) I have it so it works for individual courses, but not yet for all courses. This requires modifying the workerpool to handle requests to GPT.
+
+We can come up with more clever things for it to do later on, but at least its mostly set up.
+
+### Production Database
+
+IP: 35.197.117.130
+
+Checking if meilisearch is available via https:
+
+```
+curl -v https://35.197.117.130/health
+```
